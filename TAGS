@@ -1,0 +1,102 @@
+
+./Main.hs,402
+module Main Main1,2
+defaultEnv defaultEnv15,16
+defaultEnv defaultEnv16,17
+runGame runGame18,19
+runGame runGame19,20
+data PlaybackOptions PlaybackOptions35,36
+data PlaybackOptions = PlaybackOptionsPlaybackOptions35,36
+  { shouldLoop shouldLoop36,37
+playFile playFile39,40
+playFile playFile40,41
+playSound playSound55,56
+playSound playSound56,57
+main main68,69
+main main70,71
+
+./src/Split.hs,294
+module Split Split0,1
+type Errors Errors12,13
+type Log Log14,15
+type Parser Parser16,17
+split split18,19
+split split19,20
+eof eof28,29
+eof eof29,30
+upper upper36,37
+upper upper37,38
+lower lower42,43
+lower lower43,44
+runParser runParser48,49
+runParser runParser49,50
+
+./src/GameT.hs,112
+module GameT GameT0,1
+data Env Env2,3
+data Env = EnvEnv2,3
+  { envPlaySoundFileFn envPlaySoundFileFn3,4
+
+./src/Main.hs,160
+module Main Main0,1
+defaultEnv defaultEnv12,13
+defaultEnv defaultEnv13,14
+runGame runGame15,16
+runGame runGame16,17
+main main32,33
+main main33,34
+
+./src/Data/GameEnvironment.hs,324
+module Data.GameEnvironment Data.GameEnvironment0,1
+type PlayerName PlayerName2,3
+data GameEnvironment GameEnvironment4,5
+data GameEnvironment = GameEnvironmentGameEnvironment4,5
+  { playerName playerName5,6
+  , debugMode debugMode6,7
+gameEnvironment gameEnvironment9,10
+gameEnvironment gameEnvironment10,11
+
+./src/Data/Coords.hs,246
+module Data.Coords Data.Coords0,1
+data Coords Coords4,5
+data Coords = CoordsCoords4,5
+  { x x5,6
+  , y y6,7
+coords coords10,11
+coords coords11,12
+prettyPrintCoords prettyPrintCoords13,14
+prettyPrintCoords prettyPrintCoords14,15
+
+./src/Data/GameItem.hs,194
+module Data.GameItem Data.GameItem0,1
+data GameItem GameItem4,5
+data GameItem = Candle Candle4,5
+data GameItem = Candle | MatchesMatches4,5
+readItem readItem7,8
+readItem readItem8,9
+
+./src/Data/GameState.hs,271
+module Data.GameState Data.GameState0,1
+data GameState GameState7,8
+data GameState = GameStateGameState7,8
+  { items items8,9
+  , player player9,10
+  , inventory inventory10,11
+initialGameState initialGameState13,14
+initialGameState initialGameState14,15
+
+./src/Game.hs,278
+type Log Log11,12
+type Game Game13,14
+has has15,16
+has has16,17
+pickUp pickUp20,21
+pickUp pickUp21,22
+describeRoom describeRoom35,36
+describeRoom describeRoom36,37
+move move43,44
+move move44,45
+use use52,53
+use use53,54
+game game65,66
+game game66,67
