@@ -136,7 +136,7 @@ use Matches = do
   then do
     env <- ask
     liftIO $ putStrLn ("You light the candle.")
-    liftIO $ putStrLn ("Congratiulations, " ++ playerName env ++ "!")
+    liftIO $ putStrLn ("Congratulations, " ++ playerName env ++ "!")
     liftIO $ putStrLn ("You win!")
   else
     liftIO $ putStrLn ("You don't have anything to light.") 
