@@ -9,8 +9,8 @@ import Data.Coords
 
 import Data.Map as M
 import Data.Set as S
-import Control.Monad.Trans.Reader (ReaderT)
-import Control.Monad.Trans.State (StateT)
+import Control.Monad.Trans.Reader (ReaderT, runReaderT)
+import Control.Monad.Trans.State (StateT, runStateT)
 import Control.Monad.Trans.Free
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class (ask)
@@ -38,6 +38,7 @@ data Cmd ret
 
 type Game' = FreeT Cmd
 
+-- Command generators
 has' :: Monad m => GameItem -> Game' m Bool
 has' item = liftF (Has item id)
 
@@ -87,6 +88,8 @@ getState' = liftF (GetState id)
 
 isDebugMode' :: Monad m => Game' m Bool
 isDebugMode' = liftF (IsDebugMode id)
+
+-- Implementations for Game transformer stack
 
 has :: GameItem -> Game Bool
 has item = do
@@ -138,7 +141,7 @@ use Matches = do
   else
     liftIO $ putStrLn ("You don't have anything to light.") 
 
--- Generate commands
+-- Generate commands from input
 game' :: Monad m => [String] -> Game' m ()
 game' ["north"] = move' 0    1
 game' ["south"] = move' 0    (-1)
@@ -172,43 +175,14 @@ game' ["take", item] =
 game' [] = pure ()
 game' _ = say' "I don't understand"
 
--- game :: [String] -> Game ()
--- game ["look"] = do
---   s <- get
---   liftIO $ putStrLn (["You are at " ++ prettyPrintCoords (player s)])
---   describeRoom
---   forM_ (M.lookup (player s) (items s)) $ \items' ->
---     liftIO $ putStrLn (fmap (\item -> "You see the " ++ show item ++ ".") (S.toList items'))
--- game ["inventory"] = do
---   s <- get
---   liftIO $ putStrLn (fmap (\item -> "You have the " ++ show item ++ ".") (S.toList (inventory s)))
--- game ["north"] = move 0    (1)
--- game ["south"] = move 0    (-1)
--- game ["west"]  = move (-1) 0
--- game ["east"]  = move 1 0 
--- game ["take", item] =
---   case readItem item of
---     Nothing -> liftIO $ putStrLn ["I don't know what item you're referring to."]
---     Just gameItem -> pickUp gameItem
--- game ["use", item] =
---   case readItem item of
---     Nothing -> liftIO $ putStrLn ["I don't know what item you're referring to."]
---     Just gameItem -> do
---       hasItem <- has gameItem
---       if hasItem
---         then use gameItem
---         else liftIO $ putStrLn ["You don't have that item"]
--- game ["debug"] = do
---   env <- ask
---   if debugMode env
---     then do
---     s <- get
---     liftIO $ putStrLn [show s]
---   else liftIO $ putStrLn ["Not running in debug mode."]
--- game [] = pure ()
--- game _ = liftIO $ putStrLn ["I don't understand"]
-
 type Game = ReaderT GameEnvironment (StateT GameState IO)
+
+runGame :: Game a -> GameEnvironment -> GameState -> IO (a, GameState)
+runGame game env state = (runStateT (runReaderT game env) state)
+
+-- runGame (interpret (game' ["debug"])) defaultEnv initialGameState
+
+-- Interpret commands
 
 interpret :: Game' Game a -> Game a
 interpret = iterT morph
@@ -235,8 +209,7 @@ interpret = iterT morph
     morph (GetItemsAtPlayerLocation next) = do
       s <- get
       let
-        maybeItems = (M.lookup (player s) (items s))
-        itemsList  = maybe [] (S.toList) maybeItems
+        itemsList  = maybe [] (S.toList) (M.lookup (player s) (items s))
       next itemsList
     morph (GetState next) = do
       s <- get
