@@ -17,11 +17,9 @@ import Control.Monad.Reader.Class (ask)
 import Control.Monad.State.Class (get, modify, put)
 import Control.Monad (forM_)
 
-type Log = [String]
+import Audio (PlaybackOptions(..), playFile)
 
-data PlaybackOptions = PlaybackOptions
-  { shouldLoop :: Bool
-  }
+type Log = [String]
 
 data Cmd ret
   = Say String ret
@@ -54,6 +52,9 @@ move' dx dy = liftF (Move dx dy ())
 getPlayerName' :: Monad m => Game' m String
 getPlayerName' = liftF (GetPlayerName id)
 
+playFile' :: Monad m => PlaybackOptions -> FilePath -> Game' m ()
+playFile' opt file = liftF (PlayFile opt file ())
+
 describeRoom' :: Monad m => Coords -> Game' m ()
 describeRoom' Coords { x = 0, y = 0 } = say' "You are in a dark forest. You see a path to the north."
 describeRoom' Coords { x = 0, y = 1 } = say' "You are in a clearing."
@@ -68,6 +69,7 @@ use' pName Matches = do
     say' "You light the candle."
     say' ("Congratulations, " ++ pName ++ "!")
     say' "You win!"
+    playFile' (PlaybackOptions { shouldLoop = False }) "data/bachfugue.wav"
   else
     say' "You don't have anything to light." 
 
@@ -75,7 +77,7 @@ look' :: Monad m => Coords -> [GameItem] -> Game' m ()
 look' loc itemList = do
   say' ("You are at " ++ prettyPrintCoords loc)
   describeRoom' loc
-  forM_ itemList (\item -> say' (show item))
+  forM_ itemList (\item -> say' ("You see the " ++ show item ++ "."))
 
 getPlayerLocation' :: Monad m => Game' m Coords
 getPlayerLocation' = liftF (GetPlayerLocation id)
@@ -217,5 +219,6 @@ interpret = iterT morph
     morph (IsDebugMode next) = do
       env <- ask
       next (debugMode env)
-    morph (PlayFile _ _ next) = do
+    morph (PlayFile opt file next) = do
+      liftIO $ playFile opt file
       next
