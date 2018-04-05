@@ -47,7 +47,6 @@ main = withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ ->
     currentContext $= Just context
     -- playFile (PlaybackOptions { shouldLoop = True }) "data/bachfugue.wav"
     run defaultEnv initialGameState
-    sleep 3
     closeDevice device
     return ()
 
