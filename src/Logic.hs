@@ -23,6 +23,7 @@ data Cmd ret
   | GetState (GameState -> ret)
   | IsDebugMode (Bool -> ret)
   | PlayFile PlaybackOptions FilePath ret
+  | Quit ret
   deriving Functor
 
 type Program = FreeT Cmd
@@ -56,6 +57,9 @@ getState' = liftF (GetState id)
 
 isDebugMode' :: Monad m => Program m Bool
 isDebugMode' = liftF (IsDebugMode id)
+
+quit' :: Monad m => Program m ()
+quit' = liftF (Quit ())
 
 describeRoom' :: Monad m => Coords -> Program m ()
 describeRoom' Coords { x = 0, y = 0 } = say' "You are in a dark forest. You see a path to the north."
@@ -111,5 +115,11 @@ logic ["take", item] =
   case readItem item of
     Nothing -> say' "I don't know what item you're referring to."
     Just gameItem -> pickup' gameItem
+logic ["quit"] =
+  quit'
+  -- quit <- confirm' "Are you sure you want to quit?"
+  -- case quit of
+  --   True -> quit'
+  --   _    -> pure ()
 logic [] = pure ()
 logic _ = say' "I don't understand"

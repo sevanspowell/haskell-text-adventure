@@ -6,16 +6,18 @@ import Data.Coords (Coords(..), coords)
 import Data.GameItem (GameItem(..))
 
 data GameState = GameState
-  { items     :: M.Map Coords (S.Set GameItem)
-  , player    :: Coords
-  , inventory :: S.Set GameItem
+  { items      :: M.Map Coords (S.Set GameItem)
+  , player     :: Coords
+  , inventory  :: S.Set GameItem
+  , shouldQuit :: Bool
   } deriving Show
 
 initialGameState :: GameState
 initialGameState = GameState
-  { items     = M.fromList [ ( (coords 0 1), (S.singleton Candle)  )
-                           , ( (coords 0 0), (S.singleton Matches) )
-                           ]
-  , player    = Coords { x = 0, y = 0 }
-  , inventory = S.empty
+  { items      = M.fromList [ ( (coords 0 1), (S.singleton Candle)  )
+                            , ( (coords 0 0), (S.singleton Matches) )
+                            ]
+  , player     = Coords { x = 0, y = 0 }
+  , inventory  = S.empty
+  , shouldQuit = False
   }

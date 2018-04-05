@@ -32,7 +32,9 @@ run env state = runInputT defaultSettings go
     game :: GameState -> String -> IO ()
     game currentState input = do
         (_, newState) <- runGame (interpret (logic (splitOn " " input))) env currentState
-        run env newState
+        case (shouldQuit newState) of
+          True  -> pure ()
+          False -> run env newState
     
 
 -- Chris Double

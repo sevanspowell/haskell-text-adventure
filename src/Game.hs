@@ -41,9 +41,10 @@ pickUp item = do
       | item `S.member` itemsHere -> do
           let newItems = M.update (Just . S.delete item) (player s) (items s)
               newInventory = S.insert item (inventory s)
-          put $ GameState { items     = newItems
-                          , inventory = newInventory
-                          , player    = (player s)
+          put $ GameState { items      = newItems
+                          , inventory  = newInventory
+                          , player     = (player s)
+                          , shouldQuit = (shouldQuit s)
                           }
           liftIO $ putStrLn ("You now have the " ++ show item)
     _ -> liftIO $ putStrLn ("I don't see that item here.")
@@ -53,13 +54,14 @@ describeRoom = do
   s <- get
   case (player s) of
     Coords { x = 0, y = 0 } -> liftIO $ putStrLn ("You are in a dark forest. You see a path to the north.")
-    Coords { x = 0, y = 1 } -> liftIO $ putStrLn ("You are in a clearing.") 
+    Coords { x = 0, y = 1 } -> liftIO $ putStrLn ("You are in a clearing.")
     _ -> liftIO $ putStrLn ("You are deep in the forest")
 
 move :: Int -> Int -> Game ()
-move dx dy = modify (\s -> GameState { items = (items s)
-                                     , inventory = (inventory s)
-                                     , player = updateCoords (player s)
+move dx dy = modify (\s -> GameState { items      = (items s)
+                                     , inventory  = (inventory s)
+                                     , player     = updateCoords (player s)
+                                     , shouldQuit = (shouldQuit s)
                                      })
   where
   updateCoords :: Coords -> Coords
@@ -76,7 +78,14 @@ use Matches = do
     liftIO $ putStrLn ("Congratulations, " ++ playerName env ++ "!")
     liftIO $ putStrLn ("You win!")
   else
-    liftIO $ putStrLn ("You don't have anything to light.") 
+    liftIO $ putStrLn ("You don't have anything to light.")
+
+quit :: Game ()
+quit = modify (\s -> GameState { items      = (items s)
+                               , inventory  = (inventory s)
+                               , player     = (player s)
+                               , shouldQuit = True
+                               })
 
 -- Interpret commands
 
@@ -115,4 +124,7 @@ interpret = iterT morph
       next (debugMode env)
     morph (PlayFile opt file next) = do
       liftIO $ playFile opt file
+      next
+    morph (Quit next) = do
+      quit
       next
