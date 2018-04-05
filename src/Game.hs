@@ -17,6 +17,8 @@ import Control.Monad.Reader.Class (ask)
 import Control.Monad.State.Class (get, modify, put)
 import Control.Monad (forM_)
 
+import System.Console.Haskeline
+
 import Audio (PlaybackOptions(..), playFile)
 
 -- Implementations for Game transformer stack
@@ -47,15 +49,15 @@ pickUp item = do
                           , shouldQuit = (shouldQuit s)
                           }
           liftIO $ putStrLn ("You now have the " ++ show item)
-    _ -> liftIO $ putStrLn ("I don't see that item here.")
+    _ -> liftIO $ putStrLn "I don't see that item here."
 
 describeRoom :: Game ()
 describeRoom = do
   s <- get
   case (player s) of
-    Coords { x = 0, y = 0 } -> liftIO $ putStrLn ("You are in a dark forest. You see a path to the north.")
-    Coords { x = 0, y = 1 } -> liftIO $ putStrLn ("You are in a clearing.")
-    _ -> liftIO $ putStrLn ("You are deep in the forest")
+    Coords { x = 0, y = 0 } -> liftIO $ putStrLn "You are in a dark forest. You see a path to the north."
+    Coords { x = 0, y = 1 } -> liftIO $ putStrLn "You are in a clearing."
+    _ -> liftIO $ putStrLn "You are deep in the forest"
 
 move :: Int -> Int -> Game ()
 move dx dy = modify (\s -> GameState { items      = (items s)
@@ -74,11 +76,11 @@ use Matches = do
   if hasCandle
   then do
     env <- ask
-    liftIO $ putStrLn ("You light the candle.")
+    liftIO $ putStrLn "You light the candle."
     liftIO $ putStrLn ("Congratulations, " ++ playerName env ++ "!")
-    liftIO $ putStrLn ("You win!")
+    liftIO $ putStrLn "You win!"
   else
-    liftIO $ putStrLn ("You don't have anything to light.")
+    liftIO $ putStrLn "You don't have anything to light."
 
 quit :: Game ()
 quit = modify (\s -> GameState { items      = (items s)
@@ -86,6 +88,19 @@ quit = modify (\s -> GameState { items      = (items s)
                                , player     = (player s)
                                , shouldQuit = True
                                })
+
+confirm :: String -> Game Bool
+confirm msg = do
+  liftIO $ putStrLn msg
+  liftIO $ runInputT defaultSettings getConfirmation
+    where
+      getConfirmation :: InputT IO Bool
+      getConfirmation = do
+        minput <- getInputLine ""
+        case minput of
+          Just ("yes") -> pure (True)
+          Just ("y")   -> pure (True)
+          _            -> pure (False)
 
 -- Interpret commands
 
@@ -128,3 +143,6 @@ interpret = iterT morph
     morph (Quit next) = do
       quit
       next
+    morph (Confirm msg next) = do
+      result <- confirm msg
+      next result

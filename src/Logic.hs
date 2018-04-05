@@ -24,6 +24,7 @@ data Cmd ret
   | IsDebugMode (Bool -> ret)
   | PlayFile PlaybackOptions FilePath ret
   | Quit ret
+  | Confirm String (Bool -> ret)
   deriving Functor
 
 type Program = FreeT Cmd
@@ -60,6 +61,9 @@ isDebugMode' = liftF (IsDebugMode id)
 
 quit' :: Monad m => Program m ()
 quit' = liftF (Quit ())
+
+confirm' :: Monad m => String -> Program m Bool
+confirm' msg = liftF (Confirm msg id)
 
 describeRoom' :: Monad m => Coords -> Program m ()
 describeRoom' Coords { x = 0, y = 0 } = say' "You are in a dark forest. You see a path to the north."
@@ -115,11 +119,10 @@ logic ["take", item] =
   case readItem item of
     Nothing -> say' "I don't know what item you're referring to."
     Just gameItem -> pickup' gameItem
-logic ["quit"] =
-  quit'
-  -- quit <- confirm' "Are you sure you want to quit?"
-  -- case quit of
-  --   True -> quit'
-  --   _    -> pure ()
+logic ["quit"] = do
+  quit <- confirm' "Are you sure you want to quit?"
+  case quit of
+    True -> quit'
+    _    -> pure ()
 logic [] = pure ()
 logic _ = say' "I don't understand"
