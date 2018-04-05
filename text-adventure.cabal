@@ -70,6 +70,7 @@ library
                      , split >= 0.2.3.1
                      , haskeline >= 0.7
                      , ALUT
+                     , free >= 5.0.1
 
   hs-source-dirs: src
 
@@ -91,6 +92,7 @@ executable text-adventure
                      , split >= 0.2.3.1
                      , text-adventure
                      , ALUT
+                     , free >= 5.0.1
   
   -- Directories containing source files.
   hs-source-dirs:      src

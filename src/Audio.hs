@@ -2,9 +2,6 @@ module Audio where
 
 import Sound.ALUT
 
--- instance MonadAudio IO where
---   playFile = playFile
-
 data PlaybackOptions = PlaybackOptions
   { shouldLoop :: Bool
   }
